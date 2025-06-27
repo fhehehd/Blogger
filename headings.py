@@ -2,20 +2,20 @@ import os
 import time
 import re
 import urllib.parse
-from utils import is_duplicate, save_posted_title
+from rrepeat import is_duplicate, save_posted_title
 import requests
 from topic_generator import get_trending_topic
-from blogger import post_to_blogger
+from maal import post_to_blogger
 from meta_generator import generate_meta_description
 
-# إعداد متغيرات البيئة
+# value
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 REFRESH_TOKEN = os.getenv("REFRESH_TOKEN")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 BLOG_ID = os.getenv("BLOG_ID") 
 
-# دالة توليد Access Token من Google
+# token
 def get_access_token():
     print("🔐 Getting access token from Google...")
     token_url = "https://oauth2.googleapis.com/token"
@@ -32,10 +32,10 @@ def get_access_token():
         access_token = res.json().get("access_token")
         return access_token
     except Exception as e:
-        print("❌ Error getting access token:", e)
+        print(" Error  access token:", e)
         return None
 
-# دالة توليد مقال باستخدام Gemini
+# Ai
 def generate_article(topic: str) -> str:
     url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=AIzaSyDSOgakd0CgLzG0h8C1ZXIjMV7OavNax9c"
     
@@ -71,7 +71,7 @@ Avoid robotic language, repetition, or markdown. Output plain text only. Around 
     except Exception as e:
         print("❌ Error generating article with Gemini:", e)
         return "This is a default article content due to an error in generating the article."
-        
+        #image photos
 def get_image_html(topic: str) -> str:
     safe_topic = re.sub(r"[^\w\s]", "", topic)  # إزالة الرموز مثل % و ’ و –
     query = urllib.parse.quote(f"{safe_topic}, digital art, 800x400") 
@@ -79,7 +79,7 @@ def get_image_html(topic: str) -> str:
 
     for attempt in range(3):
         try:
-            print(f"🖼️ محاولة تحميل الصورة رقم {attempt + 1}")
+            print(f"🖼️ try to make photo num {attempt + 1}")
             response = requests.get(image_url, timeout=19)
 
             if response.status_code == 200 and "image" in response.headers.get("Content-Type", ""):
@@ -92,7 +92,7 @@ def get_image_html(topic: str) -> str:
             print(f"⚠️ محاولة {attempt + 1} فشلت: {e}")
             time.sleep(2)
 
-    print("❌ فشل تحميل الصورة بعد 3 محاولات")
+    print("❌ فشل dowload الصورة بعد 3 محاولات")
     return '''
     <img src="https://via.placeholder.com/800x400?text=Image+Error" alt="Error Image" 
     style="width:100%;max-width:800px;height:auto;aspect-ratio:2/1;
@@ -100,7 +100,7 @@ def get_image_html(topic: str) -> str:
     '''
 
 def format_article(article: str, title: str) -> str:
-    # 🔧 تنظيف الرموز الغريبة والتنسيقات
+     #textcl
     article = re.sub(r"[\u200B-\u200D\uFEFF]", "", article)  # رموز غير مرئية
     article = re.sub(r"#\w+", "", article)  # إزالة الهاشتاقات
     article = re.sub(r"[^\x00-\x7F]+", " ", article)  # إزالة رموز غير ASCII
@@ -118,7 +118,7 @@ def format_article(article: str, title: str) -> str:
     paragraphs = article.split("\n")
     formatted_paragraphs = []
 
-    # تعريف دالة لاختيار العناوين الفرعية
+    # chiice
     def is_subheading(p: str) -> bool:
         words = p.split()
         if len(words) > 10:
@@ -140,9 +140,7 @@ def format_article(article: str, title: str) -> str:
             bool(contains_heading_keywords)
         ])
 
-        return score >= 2  # على الأقل شرطين متحققين
-
-    # تنسيق الفقرات باستخدام دالة is_subheading
+        return score >= 2  # على الأقل شرطين متحققينالفقرات باستخدام دالة is_subheading
     for p in paragraphs:
         p = p.strip()
         if not p:
@@ -162,7 +160,7 @@ def format_article(article: str, title: str) -> str:
     if not title.strip() or len(title.strip()) < 4:
         title = "Path to Grow"
 
-    # 📦 تجميع المقال النهائي
+    # final terms
     formatted_article = f'''
     <div style="text-align:center;margin-bottom:20px;">
         {image_html}
@@ -176,7 +174,7 @@ def format_article(article: str, title: str) -> str:
     return formatted_article
 
 
-# الدلة الرئيسية
+# made
 def main():
     topic = get_trending_topic()
     print(f"✍️ توليد مقال عن: {topic}")
