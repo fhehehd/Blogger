@@ -6,7 +6,7 @@ from rrepeat import is_duplicate, save_posted_title
 import requests
 from topic_generator import get_trending_topic
 from maal import post_to_blogger
-from meta_generator import generate_meta_description
+from generator import generate_meta_description
 
 # value
 CLIENT_ID = os.getenv("CLIENT_ID")
